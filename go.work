@@ -1,0 +1,7 @@
+go 1.18
+
+use (
+	./grpc-load-client
+	./grpc-server
+	./proto
+)

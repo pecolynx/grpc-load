@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option go_package = "github.com/pecolynx/grpc-server/proto";
+// option java_multiple_files = true;
+// option java_package = "io.grpc.examples.helloworld";
+// option java_outer_classname = "HelloWorldProto";
+
+package proto;
+
+service HashService {
+  rpc HashConcatStream (stream HashRequest) returns (HelloResponse);
+}
+
+
+message HashRequest {
+  bytes data = 1;
+}
+
+
+message HelloResponse {
+  string value = 1;
+}
