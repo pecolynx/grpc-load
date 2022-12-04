@@ -8,7 +8,7 @@ option go_package = "github.com/pecolynx/grpc-server/proto";
 package proto;
 
 service HashService {
-  rpc HashConcatStream (stream HashRequest) returns (HelloResponse);
+  rpc HashConcatStream (stream HashRequest) returns (HashResponse) {}
 }
 
 
@@ -17,6 +17,6 @@ message HashRequest {
 }
 
 
-message HelloResponse {
+message HashResponse {
   string value = 1;
 }

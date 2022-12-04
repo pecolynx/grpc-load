@@ -2,12 +2,16 @@ package main
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
+	"io"
 	"net"
 	"os"
 	"os/signal"
 	"strconv"
 	"syscall"
+	"time"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
@@ -22,19 +26,37 @@ import (
 )
 
 func main() {
+	result := run(context.Background())
 
+	gracefulShutdownTime2 := time.Duration(1) * time.Second
+	time.Sleep(gracefulShutdownTime2)
+	logrus.Info("exited")
+	os.Exit(result)
 }
 
 type hashServer struct {
 	pb.UnimplementedHashServiceServer
 }
 
-func NewHashServer() pb.HashServer {
+func NewHashServer() pb.HashServiceServer {
 	return &hashServer{}
 }
 
-func (s *hashServer) HashConcatStream(ctx context.Context, in *pb.HashRequest) (*pb.HashResponse, error) {
-	return nil, nil
+func (s *hashServer) HashConcatStream(stream pb.HashService_HashConcatStreamServer) error {
+	value := ""
+	for {
+		req, err := stream.Recv()
+		if err == io.EOF {
+			return stream.SendAndClose(&pb.HashResponse{
+				Value: value,
+			})
+		}
+		if err != nil {
+			return err
+		}
+		r := sha256.Sum256(req.Data)
+		value += hex.EncodeToString(r[:])
+	}
 }
 
 func run(ctx context.Context) int {
@@ -81,7 +103,7 @@ func grpcServer(ctx context.Context) error {
 	reflection.Register(grpcServer)
 
 	userServer := NewHashServer()
-	pb.RegisterHashServer(grpcServer, userServer)
+	pb.RegisterHashServiceServer(grpcServer, userServer)
 
 	logrus.Printf("grpc server listening at %v", lis.Addr())
 

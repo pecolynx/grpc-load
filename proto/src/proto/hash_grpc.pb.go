@@ -44,7 +44,7 @@ func (c *hashServiceClient) HashConcatStream(ctx context.Context, opts ...grpc.C
 
 type HashService_HashConcatStreamClient interface {
 	Send(*HashRequest) error
-	CloseAndRecv() (*HelloResponse, error)
+	CloseAndRecv() (*HashResponse, error)
 	grpc.ClientStream
 }
 
@@ -56,11 +56,11 @@ func (x *hashServiceHashConcatStreamClient) Send(m *HashRequest) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *hashServiceHashConcatStreamClient) CloseAndRecv() (*HelloResponse, error) {
+func (x *hashServiceHashConcatStreamClient) CloseAndRecv() (*HashResponse, error) {
 	if err := x.ClientStream.CloseSend(); err != nil {
 		return nil, err
 	}
-	m := new(HelloResponse)
+	m := new(HashResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -100,7 +100,7 @@ func _HashService_HashConcatStream_Handler(srv interface{}, stream grpc.ServerSt
 }
 
 type HashService_HashConcatStreamServer interface {
-	SendAndClose(*HelloResponse) error
+	SendAndClose(*HashResponse) error
 	Recv() (*HashRequest, error)
 	grpc.ServerStream
 }
@@ -109,7 +109,7 @@ type hashServiceHashConcatStreamServer struct {
 	grpc.ServerStream
 }
 
-func (x *hashServiceHashConcatStreamServer) SendAndClose(m *HelloResponse) error {
+func (x *hashServiceHashConcatStreamServer) SendAndClose(m *HashResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
